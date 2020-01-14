@@ -16,8 +16,9 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
   if [[ -z $SKIP_TESTS ]]; then
     npm run lint
     # npm run flow
+    npm run test
     npm run test:coverage
-    # npm run test:e2e
+    npm run test:e2e
     # npm run test:ssr
   fi
 
