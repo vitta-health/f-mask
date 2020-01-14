@@ -21,6 +21,10 @@
     "vue",
     "vuef-mask"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitta-health/f-mask.git"
+  },
   "author": "Gilson Souza <gilson@vitta.com.br>",
   "license": "MIT",
   "devDependencies": {
