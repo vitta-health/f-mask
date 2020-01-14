@@ -10,6 +10,10 @@ fi
 
 read -p "Releasing $VERSION - are you sure? (y/n) " -n 1 -r
 echo
+
+# build
+VERSION=$VERSION npm run build
+
 if [[ $REPLY =~ ^[Yy]$ ]]; then
   echo "Releasing $VERSION ..."
 
@@ -22,8 +26,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     # npm run test:ssr
   fi
 
-  # build
-  VERSION=$VERSION npm run build
+
 
   # commit
   git add -A
