@@ -428,6 +428,13 @@ function updateValue(el) {
   var isValueChanged = value !== previousValue;
   var isLengthIncreased = value.length > previousValue.length;
   var isUpdateNeeded = value && isValueChanged && isLengthIncreased;
+  console.log({
+    previousValue: previousValue,
+    optional: optional,
+    initialBase: initialBase,
+    value: value,
+    mask: mask
+  });
 
   if (force || isUpdateNeeded) {
     if (mask.length < value.length && !!optional) {
@@ -444,6 +451,13 @@ function updateValue(el) {
     triggerInputUpdate(el);
   }
 
+  console.log({
+    previousValue: previousValue,
+    optional: optional,
+    initialBase: initialBase,
+    value: value,
+    mask: mask
+  });
   options.partiallyUpdate(el, {
     previousValue: value
   });

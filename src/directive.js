@@ -5,7 +5,7 @@ import stringMaskToRegExpMask from './stringMaskToRegExpMask';
 import { trigger, queryInputElementInside } from './utils';
 import { isAndroid, isChrome } from './utils/env';
 import createOptions from './createOptions';
-import { BACK_CHAR } from './constants';
+import { BACK_CHAR, VALID_CHARS } from './constants';
 
 const options = createOptions();
 
@@ -28,9 +28,12 @@ function updateMask(el, mask) {
   const [base, ...optionalBase] = mask.split(BACK_CHAR).reverse();
 
   if (!optional) {
+    const initialValidMaskChars = base.split('').filter((character) => VALID_CHARS.includes(character));
+
     options.partiallyUpdate(el, {
       optional: optionalBase,
       initialBase: base,
+      initialValidMaskChars,
     });
   }
 
@@ -50,7 +53,14 @@ function updateMask(el, mask) {
  * @param {Boolean}          force
  */
 function updateValue(el, force = false) {
-  const { previousValue, optional, initialBase } = options.get(el);
+  // prettier-ignore
+  const {
+    previousValue,
+    optional,
+    initialBase,
+    initialValidMaskChars,
+  } = options.get(el);
+
   const { value } = el;
 
   let { mask } = options.get(el);
@@ -61,7 +71,7 @@ function updateValue(el, force = false) {
 
   if (force || isUpdateNeeded) {
     if (mask.length < value.length && !!optional) {
-      const complement = optional.slice(0, value.length - initialBase.length);
+      const complement = optional.slice(0, value.length - initialValidMaskChars.length);
 
       mask = updateMask(el, `${complement.join('')}${initialBase}`);
     }
