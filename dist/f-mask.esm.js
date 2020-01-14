@@ -278,14 +278,12 @@ var BACK_CHAR_OPTIONAL = {
   __backCharOptional__: true
 };
 var BACK_CHAR = '&';
-var NUMERIC_CHAR = /\d/;
-var ALPHA_CHAR = /[a-z]/i;
-var ALPHA_NUMERIC_CHAR = /[a-z0-9]/i;
-var defaultMaskReplacers = (_defaultMaskReplacers = {
-  '#': NUMERIC_CHAR,
-  A: ALPHA_CHAR,
-  N: ALPHA_NUMERIC_CHAR
-}, _defineProperty(_defaultMaskReplacers, NEXT_CHAR, NEXT_CHAR_OPTIONAL), _defineProperty(_defaultMaskReplacers, BACK_CHAR, BACK_CHAR_OPTIONAL), _defineProperty(_defaultMaskReplacers, "X", /./), _defaultMaskReplacers);
+var NUMERIC_CHAR = '#';
+var ALPHA_CHAR = 'A';
+var ALPHA_NUMERIC_CHAR = 'N';
+var ANYTHING_CHAR = 'X';
+var VALID_CHARS = [NUMERIC_CHAR, ALPHA_CHAR, ALPHA_NUMERIC_CHAR, ANYTHING_CHAR];
+var defaultMaskReplacers = (_defaultMaskReplacers = {}, _defineProperty(_defaultMaskReplacers, NUMERIC_CHAR, /\d/), _defineProperty(_defaultMaskReplacers, ALPHA_CHAR, /[a-z]/i), _defineProperty(_defaultMaskReplacers, ALPHA_NUMERIC_CHAR, /[a-z0-9]/i), _defineProperty(_defaultMaskReplacers, NEXT_CHAR, NEXT_CHAR_OPTIONAL), _defineProperty(_defaultMaskReplacers, BACK_CHAR, BACK_CHAR_OPTIONAL), _defineProperty(_defaultMaskReplacers, ANYTHING_CHAR, /./), _defaultMaskReplacers);
 
 var stringToRegexp = function stringToRegexp(str) {
   var lastSlash = str.lastIndexOf('/');
@@ -398,9 +396,13 @@ function updateMask(el, mask) {
       optionalBase = _mask$split$reverse2.slice(1);
 
   if (!optional) {
+    var initialValidMaskChars = base.split('').filter(function (character) {
+      return VALID_CHARS.includes(character);
+    });
     options.partiallyUpdate(el, {
       optional: optionalBase,
-      initialBase: base
+      initialBase: base,
+      initialValidMaskChars: initialValidMaskChars
     });
   }
 
@@ -418,7 +420,8 @@ function updateValue(el) {
   var _options$get2 = options.get(el),
       previousValue = _options$get2.previousValue,
       optional = _options$get2.optional,
-      initialBase = _options$get2.initialBase;
+      initialBase = _options$get2.initialBase,
+      initialValidMaskChars = _options$get2.initialValidMaskChars;
 
   var value = el.value;
 
@@ -427,19 +430,28 @@ function updateValue(el) {
 
   var isValueChanged = value !== previousValue;
   var isLengthIncreased = value.length > previousValue.length;
-  var isUpdateNeeded = value && isValueChanged && isLengthIncreased;
-  console.log({
-    previousValue: previousValue,
-    optional: optional,
-    initialBase: initialBase,
-    value: value,
-    mask: mask
-  });
+  var isLengthDecreased = value.length < previousValue.length;
+  var isUpdateNeeded = value && isValueChanged && (isLengthIncreased || isLengthDecreased);
 
   if (force || isUpdateNeeded) {
-    if (mask.length < value.length && !!optional) {
-      var complement = optional.slice(0, value.length - initialBase.length);
+    var valueComparator = !previousValue ? initialValidMaskChars.length : mask.length;
+
+    if (valueComparator < value.length && !!optional) {
+      var maskComparator = !previousValue ? initialValidMaskChars.length : initialBase.length;
+      var complement = optional.slice(0, value.length - maskComparator);
       mask = updateMask(el, "".concat(complement.join('')).concat(initialBase));
+    } else if (isLengthDecreased) {
+      var reducement = mask.length - value.length;
+      var reducedMask = mask.slice(reducement);
+
+      if (reducedMask.length >= initialBase.length) {
+        mask = reducedMask;
+        options.partiallyUpdate(el, {
+          mask: mask
+        });
+      } else {
+        return null;
+      }
     }
 
     var _conformToMask = conformToMask(value, mask, {
@@ -451,17 +463,10 @@ function updateValue(el) {
     triggerInputUpdate(el);
   }
 
-  console.log({
-    previousValue: previousValue,
-    optional: optional,
-    initialBase: initialBase,
-    value: value,
-    mask: mask
-  });
   options.partiallyUpdate(el, {
     previousValue: value
   });
-  return true;
+  return null;
 }
 
 var directive = {

@@ -67,13 +67,30 @@ function updateValue(el, force = false) {
 
   const isValueChanged = value !== previousValue;
   const isLengthIncreased = value.length > previousValue.length;
-  const isUpdateNeeded = value && isValueChanged && isLengthIncreased;
+  const isLengthDecreased = value.length < previousValue.length;
+  const isUpdateNeeded = value && isValueChanged && (isLengthIncreased || isLengthDecreased);
 
   if (force || isUpdateNeeded) {
-    if (mask.length < value.length && !!optional) {
-      const complement = optional.slice(0, value.length - initialValidMaskChars.length);
+    const valueComparator = !previousValue ? initialValidMaskChars.length : mask.length;
+
+    if (valueComparator < value.length && !!optional) {
+      const maskComparator = !previousValue ? initialValidMaskChars.length : initialBase.length;
+      const complement = optional.slice(0, value.length - maskComparator);
 
       mask = updateMask(el, `${complement.join('')}${initialBase}`);
+    } else if (isLengthDecreased) {
+      const reducement = mask.length - value.length;
+      const reducedMask = mask.slice(reducement);
+
+      if (reducedMask.length >= initialBase.length) {
+        mask = reducedMask;
+
+        options.partiallyUpdate(el, {
+          mask,
+        });
+      } else {
+        return null;
+      }
     }
 
     const { conformedValue } = conformToMask(value, mask, {
@@ -86,7 +103,7 @@ function updateValue(el, force = false) {
 
   options.partiallyUpdate(el, { previousValue: value });
 
-  return true;
+  return null;
 }
 
 /**
