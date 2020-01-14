@@ -16,10 +16,7 @@ const stringToRegexp = (str) => {
  * @param {RegExp} charRegexp
  * @return {RegExp}
  */
-export const makeRegexpOptional = (charRegexp) =>
-  stringToRegexp(
-    charRegexp.toString().replace(/.(\/)[gmiyus]{0,6}$/, (match) => match.replace('/', '?/')),
-  );
+export const makeRegexpOptional = (charRegexp) => stringToRegexp(charRegexp.toString().replace(/.(\/)[gmiyus]{0,6}$/, (match) => match.replace('/', '?/')));
 
 /**
  * @param {String} char
