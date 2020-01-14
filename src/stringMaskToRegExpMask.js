@@ -12,8 +12,7 @@ export default function stringMaskToRegExpMask(stringMask) {
     .map((char, index, array) => {
       const maskChar = defaultMaskReplacers[char] || char;
       const previousChar = array[index - 1];
-      const previousMaskChar =
-        defaultMaskReplacers[previousChar] || previousChar;
+      const previousMaskChar = defaultMaskReplacers[previousChar] || previousChar;
       if (maskChar === NEXT_CHAR_OPTIONAL) {
         return null;
       }
