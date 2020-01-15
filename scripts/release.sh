@@ -41,5 +41,6 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
   # publish
   git push origin refs/tags/v$VERSION
   git push
+  npm login
   npm publish --access public
 fi

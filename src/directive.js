@@ -120,8 +120,10 @@ export default {
   bind(el, { value }) {
     el = queryInputElementInside(el);
 
-    updateMask(el, value);
-    updateValue(el);
+    if (value) {
+      updateMask(el, value);
+      updateValue(el);
+    }
   },
 
   /**
@@ -140,13 +142,15 @@ export default {
 
     const isMaskChanged = value !== oldValue;
 
-    // update mask first if changed
-    if (isMaskChanged) {
-      updateMask(el, value);
-    }
+    if (value) {
+      // update mask first if changed
+      if (isMaskChanged) {
+        updateMask(el, value);
+      }
 
-    // update value
-    updateValue(el, isMaskChanged);
+      // update value
+      updateValue(el, isMaskChanged);
+    }
   },
 
   unbind(el) {
