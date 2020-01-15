@@ -1,6 +1,6 @@
 {
   "name": "@vitta-health/f-mask",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Tiny input mask library for Vue.js based on v-mask (~4kb) exposed as directive. No dependencies",
   "main": "dist/f-mask.js",
   "module": "dist/f-mask.esm.js",
